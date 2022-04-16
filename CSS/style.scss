@@ -1,0 +1,261 @@
+// <ПЕРЕМЕННЫЕ>=====================================================================
+$fontfamily: "Arial";
+$minwidth:320px;
+$maxWidth:1700px;
+$maxWidthContainer:1800px;
+$md1:$maxWidthContainer + 12;
+$md2:992.98px;
+$md3:767.98px;
+$md4:479.98px;
+// </ПЕРЕМЕННЫЕ>====================================================================
+
+// <ОБНУЛЕНИЕ>======================================================================
+*{padding: 0; margin: 0; border: 0;}
+*,*:before,*after{-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;}
+:focus,:active{outline:none;}
+a:focus,a:active{outline: none;}
+nav,footer,header,aside{display: block;}
+html,body{height: 100%; width: 100%; margin: 0; padding: 0; min-width: $minwidth; position: relative; color: #000;}
+body{font-size: 100%; line-height: 1; font-size: 14px; font-family: $fontfamily; -ms-text-size-adjust: 100%; -moz-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;
+    &.lock { overflow: hidden;
+        @media (max-width:$md3){
+            width: 100%;
+            position: fixed;
+            overflow: hidden;
+        }
+    }
+}
+input,button,textarea{font-family: $fontfamily;}
+input::-ms-clear{display: none;}
+button{cursor: pointer;}
+button::-moz-focus-inner{padding: 0; border: 0;}
+a, a:visited{text-decoration: none};
+a:hover{text-decoration:none}
+ul li{list-style: none;}
+img{vertical-align: top;}
+h1,h2,h3,h4,h5,h6{font-size: inherit; font-weight: inherit;}
+// </ОБНУЛЕНИЕ>=====================================================================
+
+
+// <ОБОЛОЧКА>=======================================================================
+.wrapper {
+    width: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    background-color: #222629;
+    color: #a3a3a3;
+    font-family: "Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
+    z-index: 1;
+    font-size: 18px;
+}
+.container {
+    max-width: $maxWidthContainer;
+    margin: 0px auto;
+}
+// </ОБОЛОЧКА>======================================================================
+.input {
+    caret-color: #61892F;
+    color: #61892F;
+    background-color: #222629;
+    width: 200px;
+    padding: 2px;
+    border: 1px solid #61892F;
+    border-radius: 6px;
+    margin: 3px 0;
+}
+.sectionButton {
+    display: inline-block;
+    width: 13px;
+    height: 12px;
+    line-height: 12px;
+    border: 1px solid #61892F;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 10px;
+    cursor: pointer;
+}
+.taskButton {
+    cursor: pointer;
+    width: 9px;
+    height: 9px;
+    line-height: 9px;
+    border: 1px solid #61892F;
+    text-align: center;
+    border-radius: 50%;
+    margin: 0 3px;
+    font-size: 10px;
+}
+.taskMenu {
+    position: absolute;
+    height: 20px;
+    padding: 0 5px;
+    border: 1px solid #61892F;
+    border-radius: 6px;
+    background-color: #222629;
+
+    button {
+        background: inherit;
+        color: #61892F;
+        margin-right: 5px;
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+.tasks {
+    border: 1px solid #61892F;
+    position: relative;
+    color: #61892F;
+    border-radius: 20px;
+    min-height: 200px;
+    padding: 10px;
+
+    width: 95%;
+    margin: 100px auto 0 auto;
+    // tasks__header
+    &__header {
+        text-align: center;
+        color: #86C232;
+        font-size: 40px;
+    }
+    // .tasks__sections
+    &__sections {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin: 15px 0 0;
+    }
+    // .tasks__section
+    &__section {
+        position: relative;
+        margin: 10px 15px 0 0;
+        min-width: 300px;
+        min-height: 100px;
+        border: 1px dashed #61892F;
+        border-radius: 20px;
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+    // .tasks__sectionHeader
+    &__sectionHeader {
+        margin: 5px 0;
+        padding: 0 80px;
+        font-size: 25px;
+        text-align: center;
+    }
+    // .tasks__sectionControls
+    &__sectionControls {
+        display: inline-block;
+        position: absolute;
+        top: 5px;
+        right: 8px;
+    }
+    // .tasks__createSectionButton
+    &__createSectionButton {
+        display: inline-block;
+        width: 30px;
+        height: 20px;
+        position: absolute;
+        right: 13px;
+        top: 14px;
+        line-height: 20px;
+        border: 1px solid #61892F;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+    }
+    // .tasks__list
+    &__list {
+        margin: 30px;
+    }
+    // .tasks__object
+    &__object {
+        color: #a3a3a3;
+        margin-top: 7px;
+        position: relative;
+        user-select: none;
+        cursor: pointer;
+        padding: 0 0 0 10px;
+        border-bottom: 1px solid rgba(97, 137, 47, 0.5);
+        &::before {
+            position: absolute;
+            top: 6px;
+            left: 1px;
+            content: '';
+            background-color: rgb(0, 133, 38);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        span {
+            font-size: 14px;
+            line-height: 18px;
+            color: #a3a3a3;
+        }
+    }
+}
+
+.form {
+    display: none;
+    position: absolute;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    // .form__content
+    &__content {
+        position: absolute;
+        padding: 10px;
+        background-color: #222629;
+        color: #61892F;
+        width: 300px;
+        height: 170px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+
+        border: 1px solid #61892F;
+        border-radius: 15px;
+    }
+    // .form__header
+    &__header {
+        padding: 15px;
+        text-align: center;
+    }
+    // .form__inputs
+    &__inputs {
+        display: flex;
+        flex-direction: column;
+    }
+    // .form__button
+    &__button {
+        font-size: 14px;
+        cursor: pointer;
+        text-align: center;
+        line-height: 30px;
+        width: 90px;
+        height: 30px;
+
+        border: 1px solid #61892F;
+        border-radius: 15px;
+    }
+}
+
+.activeForm {
+    display: block;
+}
+.activeTask {
+    color: rgba(255, 255, 0, 0.753);
+}
+.completedTask {
+    text-decoration: line-through;
+}
+.hardTask {
+    font-weight: 600;
+    color: #61892F;
+}

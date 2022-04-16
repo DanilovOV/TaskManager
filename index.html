@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Task manager</title>
+        <link rel="stylesheet" href="CSS/style.css">
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="container">
+                <div class="tasks">
+                    <div class="tasks__header">Задания</div>
+                    <span class="tasks__createSectionButton">+</span>
+                    <div class="tasks__sections"></div>
+                </div>
+            </div>
+
+            <form id="formCreateSection" class="form">
+                <div class="form__content">
+                    <div class="form__header">Добавление раздела</div>
+                    <div class="form__inputs">
+                        <input id="sectionName" type="text" class="input" autocomplete="off" placeholder="Название раздела...">
+                    </div>
+                    <div id="formCreateSectionButton" class="form__button">Добавить</div>
+                </div>
+            </form>
+            
+            <form id="formCreateTask" class="form">
+                <div class="form__content">
+                    <div class="form__header">Добавление задания</div>
+                    <div class="form__inputs">
+                        <input id="taskText" type="text" class="input" autocomplete="off" placeholder="Описание задачи...">
+                        <input id="taskDiff" type="text" class="input" autocomplete="off" placeholder="Сложность задачи от 1 до 10">
+                        <input id="taskTime" type="text" class="input" autocomplete="off" placeholder="Время выполнения...">
+                    </div>
+                    <div id="formCreateTaskButton" class="form__button">Добавить</div>
+                </div>
+            </form>
+            
+            <form id="formEditSection" class="form">
+                <div class="form__content">
+                    <div class="form__header">Изменение названия раздела</div>
+                    <div class="form__inputs">
+                        <input id="newSectionName" type="text" class="input" autocomplete="off" placeholder="Новое название...">
+                    </div>
+                    <div id="formEditSectionButton" class="form__button">Изменить</div>
+                </div>
+            </form>
+            
+            <form id="formTaskMenu" class="form">
+                <div class="taskMenu">
+                    <button type="button" id="completeTaskButton">✓</button>
+                    <button type="button" id="cancelCompleteTaskButton">—</button>
+                    <button type="button" id="editTaskButton">/</button>
+                    <button type="button" id="deleteTaskButton">&times;</button>
+                </div>
+            </form>
+
+            <form id="formEditTask" class="form">
+                <div class="form__content">
+                    <div class="form__header">Изменение задания</div>
+                    <div class="form__inputs">
+                        <input id="editTaskText" type="text" class="input" autocomplete="off" placeholder="Описание задачи...">
+                        <input id="editTaskDiff" type="text" class="input" autocomplete="off" placeholder="Сложность задачи от 1 до 10">
+                        <input id="editTaskTime" type="text" class="input" autocomplete="off" placeholder="Время выполнения...">
+                    </div>
+                    <div id="formChangeTaskButton" class="form__button">Изменить</div>
+                </div>
+            </form>
+           
+        </div>
+        <script src="JS/script.js"></script>
+    </body>
+</html>
