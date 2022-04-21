@@ -76,7 +76,12 @@ function CreateID () {
 let formCreateSection = document.getElementById('formCreateSection'); // Форма создания раздела заданий
 let formEditSection = document.getElementById('formEditSection'); // Форма изменения названия раздела
 let formCreateTask = document.getElementById('formCreateTask'); // Форма создания задания
+
 let formEditTask = document.getElementById('formEditTask'); // Форма изменения свойств задания
+let editTaskText = document.getElementById('editTaskText'); // Инпут ввода нового описания задания
+let editTaskDiff = document.getElementById('editTaskDiff'); // Инпут ввода новой сложности задания
+let editTaskTime = document.getElementById('editTaskTime'); // Инпут ввода нового дедлайна задания
+
 let formTaskMenu = document.getElementById('formTaskMenu'); // Форма создания задания
 let tasksSections = document.querySelector('.tasks__sections'); // Сюда будут добавлятся разделы заданий
 let taskMenu = document.querySelector('.taskMenu'); // Меню действий над выбранным заданием
@@ -177,84 +182,10 @@ function BuildTask (taskData) {
     thisTask.addEventListener('contextmenu', OpenTaskMenu);
 }
 
-// Изменение данных об измененном разделе
-function ChangeSectionElem (id, name) {
-    sectionArr.forEach(section => {
-        if (section.getID() == id) {
-            section.name = name;
-            SaveSectionsData();
-            return
-        }
-    })
-}
-// Удаление данных об удаленном разделе
-function DeleteSectionElem (id) {
-    for(let i = 0; i < sectionArr.length; i++) {
-        if (sectionArr[i].getID() == id) {
-            sectionArr.splice(i, 1);
-            SaveSectionsData();
 
-            // Удаляет данные о вложенных в удаленный раздел заданиях
-            for (let i = 0; i < taskArr.length; i++) {
-                if (taskArr[i].sectionID == id) {
-                    DeleteTaskElem(taskArr[i].getID());
-                    i--;
-                }
-            }
-            return
-        }
-    }
-}
-// Изменение данных о задании с указанным id
-function ChangeTaskElem (mode, id, param1, param2, param3) {
-    taskArr.forEach(task => {
-        if (task.getID() == id) {
-            if (mode == 'edit') {
-                task.text = param1;
-                task.difficult = param2;
-                task.deadline = param3;
-            }
-            if (mode == 'active') {
-                task.active = param1;
-            }
-            if (mode == 'complete') {
-                task.complete = param1;
-            }
-            SaveTasksData();
-            return
-        }
-    })
-}
-// Удаление данных об удаленном задании
-function DeleteTaskElem (id) {
-    for(let i = 0; i < taskArr.length; i++) {
-        if (taskArr[i].getID() == id) {
-            taskArr.splice(i, 1);
-            SaveTasksData();
-            return
-        }
-    }
-}
-
-// Записывает данные о разделах в LocalStorage
-function SaveSectionsData () {
-    let sectionsData = '';
-    sectionArr.forEach(section => {
-        sectionsData += section.getData();
-    })
-    localStorage.setItem('sectionsData', sectionsData);
-}
-// Записывает данные о заданиях в LocalStorage
-function SaveTasksData () {
-    let tasksData = '';
-    taskArr.forEach(task => {
-        tasksData += task.getData();
-    })
-    localStorage.setItem('tasksData', tasksData);
-}
 
 // Открывает форму создания раздела
-function OpenCreateSectionWindow(e) {
+function OpenCreateSectionWindow (e) {
     formCreateSection.classList.toggle('activeForm');
 
     let formContent = formCreateSection.querySelector('.form__content');
@@ -266,8 +197,18 @@ function OpenCreateSectionWindow(e) {
 
     document.getElementById('sectionName').select();
 }
+// Создает новый раздел заданий
+function CreateSection (e) {
+    let sectionName = document.getElementById('sectionName');
+    if (sectionName.value != '') {
+        BuildSection(new Section(sectionName.value).getData().slice(0, -1));
+        SaveSectionsData();
+        sectionName.value = '';
+        e.target.closest('form').classList.toggle('activeForm');  
+    }
+}
 // Открывает форму изменения названия раздела
-function OpenEditSectionWindow(e) {
+function OpenEditSectionWindow (e) {
     formEditSection.classList.toggle('activeForm');
     newSectionName = this.parentNode.parentNode.querySelector('.tasks__sectionHeader');
 
@@ -281,8 +222,25 @@ function OpenEditSectionWindow(e) {
 
     document.getElementById('newSectionName').select();
 }
+// Редактирует выбранный раздел заданий
+function EditSection (e) {
+    let sectionName = document.getElementById('newSectionName');
+    newSectionName.innerText = sectionName.value;
+    ChangeSectionElem(newSectionName.parentNode.id, sectionName.value);
+    sectionName.value = '';
+
+    e.target.closest('form').classList.toggle('activeForm');
+}
+// Удаляет выбранный раздел заданий
+function DeleteSection () {
+    DeleteSectionElem(this.parentNode.parentNode.id);
+    this.parentNode.parentNode.remove();
+}
+
+
+
 // Открывает форму создания задания
-function OpenCreateTaskWindow(e) {
+function OpenCreateTaskWindow (e) {
     formCreateTask.classList.toggle('activeForm');
     thisTasksList = this.parentNode.nextElementSibling;
 
@@ -295,36 +253,8 @@ function OpenCreateTaskWindow(e) {
 
     document.getElementById('taskText').select();
 }
-
-// Создает новый раздел заданий
-function CreateSection(e) {
-    let sectionName = document.getElementById('sectionName');
-    if (sectionName.value != '') {
-        BuildSection(new Section(sectionName.value).getData().slice(0, -1));
-        SaveSectionsData();
-        sectionName.value = '';
-        e.target.closest('form').classList.toggle('activeForm');  
-    }
-}
-
-// Редактирует выбранный раздел заданий
-function EditSection(e) {
-    let sectionName = document.getElementById('newSectionName');
-    newSectionName.innerText = sectionName.value;
-    ChangeSectionElem(newSectionName.parentNode.id, sectionName.value);
-    sectionName.value = '';
-
-    e.target.closest('form').classList.toggle('activeForm');
-}
-
-// Удаляет выбранный раздел заданий
-function DeleteSection() {
-    DeleteSectionElem(this.parentNode.parentNode.id);
-    this.parentNode.parentNode.remove();
-}
-
 // Создает задание в выбранной форме
-function CreateTask(e) {
+function CreateTask (e) {
     let taskText = document.getElementById('taskText');
     if (taskText.value != '') {
         let taskDiff = document.getElementById('taskDiff');
@@ -340,18 +270,157 @@ function CreateTask(e) {
         e.target.closest('form').classList.toggle('activeForm');
     }
 }
+// Изменяет статус задания (активное/неактивное)
+function ActiveHandler (mode, id) {
+    // Если надо убрать класс у определенного задания
+    if (mode == 'false') {
+        if (document.getElementById(id).classList.contains('activeTask')) {
+            document.getElementById(id).classList.remove('activeTask');
+            ChangeTaskElem('active', id, 'false');
+        }
+    }
+    // Добавляет/убирает класс при клике на задание
+    else {
+        this.classList.toggle('activeTask');
+
+        if (this.classList.contains('activeTask')) ChangeTaskElem('active', this.id, 'true');
+        else ChangeTaskElem('active', this.id, 'false');
+    }
+}
+// Открывает меню действий над заданием
+function OpenTaskMenu (e) {
+    this.classList.add('chosenTask');
+    e.preventDefault();
+    formTaskMenu.classList.toggle('activeForm');
+
+    // Отображает кнопку выполнения задания, если задание не помечено как выполненное
+    if (this.classList.contains('completedTask')) {
+        completeTaskButton.style.display = 'none';
+        cancelCompleteTaskButton.style.display = 'inline';
+    }
+    // Отображает кнопку отмены выполнения задания, если задание помечено как выполненное
+    else {
+        completeTaskButton.style.display = 'inline';
+        cancelCompleteTaskButton.style.display = 'none';
+    }
+
+    taskMenu.style.top = e.pageY - taskMenu.offsetHeight + 'px';
+    taskMenu.style.left = e.pageX - (taskMenu.offsetWidth / 2) + 'px';
+}
+// Помечает задание как выполненное
+function CompleteTask () {
+    let chosenTask = document.querySelector('.chosenTask');
+
+    ChangeTaskElem('complete', chosenTask.id, 'true');
+    chosenTask.classList.add('completedTask');
+
+    ActiveHandler('false', chosenTask.id);
+
+    formTaskMenu.classList.remove('activeForm');
+    chosenTask.classList.remove('chosenTask');
+}
+// Помечает задание как невыполненное
+function CancelCompleteTask () {
+    let chosenTask = document.querySelector('.chosenTask');
+
+    ChangeTaskElem('complete', chosenTask.id, 'false');
+    chosenTask.classList.remove('completedTask');
+
+    formTaskMenu.classList.remove('activeForm');
+    chosenTask.classList.remove('chosenTask');
+}
+// Открывает окно редактирования задания
+function OpenEditTaskWindow (e) {
+    // Заполняем инпуты окна редактирования данными об изменяемом задании
+    let thisTask = document.querySelector('.chosenTask');
+    taskArr.forEach(task => {
+        if (task.getID() == thisTask.id) {
+            editTaskText.value = task.text;
+            editTaskDiff.value = task.difficult;
+            editTaskTime.value = task.deadline;
+            return;
+        }
+    })
+
+    formTaskMenu.classList.remove('activeForm');
+    formEditTask.classList.add('activeForm');
+
+    let formContent = formEditTask.querySelector('.form__content');
+    formContent.style.top = e.pageY + 23 + 'px';
+
+    // Если форма не будет вылезать за экран слева или справа
+    if (e.pageX > formContent.offsetWidth / 2 && e.pageX + (formContent.offsetWidth / 2) < window.screen.availWidth) {
+        formContent.style.left = e.pageX - (formContent.offsetWidth / 2) + 'px';
+    }
+    else {
+        // Если форма вылезает за экран слева
+        if (e.pageX < formContent.offsetWidth / 2) formContent.style.left = 20 + 'px';
+        // Если форма вылезает за экран справа
+        else formContent.style.left = window.screen.availWidth - formContent.offsetWidth - 20 + 'px';
+    }
+
+    editTaskText.select();
+}
+// Редактирует задание
+function EditTask (e) {
+    if (editTaskText.value == '') return;
+    let thisTask = document.querySelector('.chosenTask');
+
+    ChangeTaskElem('edit', document.querySelector('.chosenTask').id, editTaskText.value, editTaskDiff.value, editTaskTime.value);
+        
+    if (editTaskDiff.value > 6) thisTask.classList.add('hardTask');
+    else thisTask.classList.remove('hardTask');
+
+    if (editTaskDiff.value) editTaskDiff.value = `(${editTaskDiff.value})`;
+    if (editTaskTime.value) editTaskTime.value = `(${editTaskTime.value})`;
+        
+    thisTask.innerHTML = `${editTaskText.value} <span>${editTaskDiff.value}</span> <span>${editTaskTime.value}</span>`
+
+    editTaskText.value = ''; editTaskDiff.value = ''; editTaskTime.value = '';
+    thisTask.classList.remove('chosenTask');
+    e.target.closest('form').classList.toggle('activeForm');
+}
+// Удаляет задание
+function DeleteTask () {
+    DeleteTaskElem(document.querySelector('.chosenTask').id);
+    document.querySelector('.chosenTask').remove();
+    formTaskMenu.classList.remove('activeForm');
+}
+
+
+
+// Записывает данные о разделах в LocalStorage
+function SaveSectionsData () {
+    let sectionsData = '';
+    sectionArr.forEach(section => {
+        sectionsData += section.getData();
+    })
+    localStorage.setItem('sectionsData', sectionsData);
+}
+
+// Записывает данные о заданиях в LocalStorage
+function SaveTasksData () {
+    let tasksData = '';
+    taskArr.forEach(task => {
+        tasksData += task.getData();
+    })
+    localStorage.setItem('tasksData', tasksData);
+}
 
 // Закрывает форму если кликнуть мимо ее контента
-function CloseForm(e) {
+function CloseForm (e) {
     if (e.target.tagName == 'FORM') {
+        if (document.querySelector('.chosenTask')) {
+            document.querySelector('.chosenTask').classList.remove('chosenTask');
+        }
         this.classList.toggle('activeForm');
-
-        if (this.id == 'formTaskMenu') document.querySelector('.chosenTask').classList.remove('chosenTask');
     }
 }
 
+// Обработка клавиш 
 document.addEventListener('keydown', KeyHandler);
-function KeyHandler(e) {
+function KeyHandler (e) {
+    // Вводит данные из формы нажатием кнопки Enter
     if (e.key == 'Enter') {
         let activeForm = document.querySelector('.activeForm');
 
@@ -370,115 +439,61 @@ function KeyHandler(e) {
     }
 }
 
-// Открывает меню действий над заданием
-function OpenTaskMenu(e) {
-    this.classList.add('chosenTask');
-    e.preventDefault();
-    formTaskMenu.classList.toggle('activeForm');
-    taskMenu.style.top = e.pageY - taskMenu.offsetHeight + 'px';
-    
-    // Если форма не вылезает за экран справа
-    if (e.pageX + (taskMenu.offsetWidth / 2) < window.screen.availWidth) {
-        taskMenu.style.left = e.pageX - (taskMenu.offsetWidth / 2) + 'px';
-    }
-    else taskMenu.style.left = window.screen.availWidth - taskMenu.offsetWidth - 20 + 'px';
+// Изменение данных о разделе с указанным id
+function ChangeSectionElem (id, name) {
+    sectionArr.forEach(section => {
+        if (section.getID() == id) {
+            section.name = name;
+            SaveSectionsData();
+            return
+        }
+    })
 }
 
-// Изменяет статус задания (активное/неактивное)
-function ActiveHandler(mode, id) {
-    // Если надо убрать класс у определенного задания
-    if (mode == 'false') {
-        if (document.getElementById(id).classList.contains('activeTask')) {
-            document.getElementById(id).classList.remove('activeTask');
-            ChangeTaskElem('active', id, 'false');
+// Изменение данных о задании с указанным id
+function ChangeTaskElem (mode, id, param1, param2, param3) {
+    taskArr.forEach(task => {
+        if (task.getID() == id) {
+            if (mode == 'edit') {
+                task.text = param1;
+                task.difficult = param2;
+                task.deadline = param3;
+            }
+            if (mode == 'active') task.active = param1;
+            if (mode == 'complete') task.complete = param1;
+
+            SaveTasksData();
+            return
+        }
+    })
+}
+
+// Удаление данных об удаленном разделе
+function DeleteSectionElem (id) {
+    for(let i = 0; i < sectionArr.length; i++) {
+        if (sectionArr[i].getID() == id) {
+            sectionArr.splice(i, 1);
+            SaveSectionsData();
+
+            // Удаляет данные о вложенных в удаленный раздел заданиях
+            for (let i = 0; i < taskArr.length; i++) {
+                if (taskArr[i].sectionID == id) {
+                    DeleteTaskElem(taskArr[i].getID());
+                    i--;
+                }
+            }
+            return
         }
     }
-    // Добавляет/убирает класс при клике на задание
-    else {
-        this.classList.toggle('activeTask');
-
-        if (this.classList.contains('activeTask')) ChangeTaskElem('active', this.id, 'true');
-        else ChangeTaskElem('active', this.id, 'false');
-    }
 }
 
-// Помечает задание как выполненное
-function CompleteTask() {
-    let chosenTask = document.querySelector('.chosenTask');
-
-    ChangeTaskElem('complete', chosenTask.id, 'true');
-    chosenTask.classList.add('completedTask');
-
-    ActiveHandler('false', chosenTask.id);
-
-    formTaskMenu.classList.remove('activeForm');
-    chosenTask.classList.remove('chosenTask');
-}
-
-// Помечает задание как невыполненное
-function CancelCompleteTask() {
-    let chosenTask = document.querySelector('.chosenTask');
-
-    ChangeTaskElem('complete', chosenTask.id, 'false');
-    chosenTask.classList.remove('completedTask');
-
-    formTaskMenu.classList.remove('activeForm');
-    chosenTask.classList.remove('chosenTask');
-}
-
-// Открывает окно редактирования задания
-function OpenEditTaskWindow(e) {
-    formTaskMenu.classList.remove('activeForm');
-    formEditTask.classList.add('activeForm');
-
-    let formContent = formEditTask.querySelector('.form__content');
-    formContent.style.top = e.pageY + 23 + 'px';
-
-    // Если форма не будет вылезать за экран слева или справа
-    if (e.pageX > formContent.offsetWidth / 2 && e.pageX + (formContent.offsetWidth / 2) < window.screen.availWidth) {
-        formContent.style.left = e.pageX - (formContent.offsetWidth / 2) + 'px';
-    }
-    else {
-        // Если форма вылезает за экран слева
-        if (e.pageX < formContent.offsetWidth / 2) {
-            formContent.style.left = 20 + 'px';
+// Удаление данных об удаленном задании
+function DeleteTaskElem (id) {
+    for(let i = 0; i < taskArr.length; i++) {
+        if (taskArr[i].getID() == id) {
+            taskArr.splice(i, 1);
+            SaveTasksData();
+            return
         }
-        // Если форма вылезает за экран справа
-        else {
-            formContent.style.left = window.screen.availWidth - formContent.offsetWidth - 20 + 'px';
-        }
-    }
-
-    document.getElementById('editTaskText').select();
-}
-
-// Удаляет задание
-function DeleteTask() {
-    DeleteTaskElem(document.querySelector('.chosenTask').id);
-    document.querySelector('.chosenTask').remove();
-    formTaskMenu.classList.remove('activeForm');
-}
-
-// Редактирует задание
-function EditTask(e) {
-let taskText = document.getElementById('editTaskText');
-    if (taskText.value != '') {
-        let thisTask = document.querySelector('.chosenTask');
-        let taskDiff = document.getElementById('editTaskDiff');
-        let taskTime = document.getElementById('editTaskTime');
-        
-        ChangeTaskElem('edit', document.querySelector('.chosenTask').id, taskText.value, taskDiff.value, taskTime.value);
-        
-        if (taskDiff.value > 6) thisTask.classList.add('hardTask');
-        else thisTask.classList.remove('hardTask');
-
-        if (taskDiff.value) taskDiff.value = `(${taskDiff.value})`;
-        if (taskTime.value) taskTime.value = `(${taskTime.value})`;
-        
-        thisTask.innerHTML = `${taskText.value} <span>${taskDiff.value}</span> <span>${taskTime.value}</span>`
-
-        editTaskText.value = ''; editTaskDiff.value = ''; editTaskTime.value = '';
-        document.querySelector('.chosenTask').classList.remove('chosenTask');
-        e.target.closest('form').classList.toggle('activeForm');
     }
 }
