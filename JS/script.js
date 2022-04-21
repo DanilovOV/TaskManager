@@ -75,11 +75,17 @@ function CreateID () {
 
 let formCreateSection = document.getElementById('formCreateSection'); // Форма создания раздела заданий
 let formEditSection = document.getElementById('formEditSection'); // Форма изменения названия раздела
+
 let formCreateTask = document.getElementById('formCreateTask'); // Форма создания задания
+let taskText = document.getElementById('taskText'); // Инпут ввода описания задания
+let taskDiff = document.getElementById('taskDiff'); // Инпут ввода сложности
+taskDiff.addEventListener('input', LengthValidate);
+let taskTime = document.getElementById('taskTime'); // Инпут ввода дедлайна задания
 
 let formEditTask = document.getElementById('formEditTask'); // Форма изменения свойств задания
 let editTaskText = document.getElementById('editTaskText'); // Инпут ввода нового описания задания
 let editTaskDiff = document.getElementById('editTaskDiff'); // Инпут ввода новой сложности задания
+editTaskDiff.addEventListener('input', LengthValidate);
 let editTaskTime = document.getElementById('editTaskTime'); // Инпут ввода нового дедлайна задания
 
 let formTaskMenu = document.getElementById('formTaskMenu'); // Форма создания задания
@@ -87,6 +93,7 @@ let tasksSections = document.querySelector('.tasks__sections'); // Сюда бу
 let taskMenu = document.querySelector('.taskMenu'); // Меню действий над выбранным заданием
 let thisTasksList; // Лист, в который будут добавляться задания
 let newSectionName; // Заголовок с названием изменяемого раздела
+let prevInputValue = ''; // Переменная для валидации инпутов сложности задания
 let sectionArr = new Array();
 let taskArr = new Array();
 
@@ -255,10 +262,7 @@ function OpenCreateTaskWindow (e) {
 }
 // Создает задание в выбранной форме
 function CreateTask (e) {
-    let taskText = document.getElementById('taskText');
     if (taskText.value != '') {
-        let taskDiff = document.getElementById('taskDiff');
-        let taskTime = document.getElementById('taskTime');
         let thisSectionID = thisTasksList.parentNode.id;
         
         BuildTask(new Task(thisSectionID, taskText.value, taskDiff.value, taskTime.value).getData().slice(0, -1));
@@ -337,6 +341,7 @@ function OpenEditTaskWindow (e) {
         if (task.getID() == thisTask.id) {
             editTaskText.value = task.text;
             editTaskDiff.value = task.difficult;
+            prevInputValue = task.difficult;
             editTaskTime.value = task.deadline;
             return;
         }
@@ -371,10 +376,12 @@ function EditTask (e) {
     if (editTaskDiff.value > 6) thisTask.classList.add('hardTask');
     else thisTask.classList.remove('hardTask');
 
-    if (editTaskDiff.value) editTaskDiff.value = `(${editTaskDiff.value})`;
-    if (editTaskTime.value) editTaskTime.value = `(${editTaskTime.value})`;
-        
-    thisTask.innerHTML = `${editTaskText.value} <span>${editTaskDiff.value}</span> <span>${editTaskTime.value}</span>`
+    let difficult = '';
+    let deadline = '';
+    if (editTaskDiff.value) difficult = `(${editTaskDiff.value})`;
+    if (editTaskTime.value) deadline = `(${editTaskTime.value})`;
+    
+    thisTask.innerHTML = `${editTaskText.value} <span>${difficult}</span> <span>${deadline}</span>`
 
     editTaskText.value = ''; editTaskDiff.value = ''; editTaskTime.value = '';
     thisTask.classList.remove('chosenTask');
@@ -436,6 +443,10 @@ function KeyHandler (e) {
             CreateTask(e);
             e.preventDefault();
         }
+        if (activeForm == document.getElementById('formEditTask')) {
+            EditTask(e);
+            e.preventDefault();
+        }
     }
 }
 
@@ -493,7 +504,20 @@ function DeleteTaskElem (id) {
         if (taskArr[i].getID() == id) {
             taskArr.splice(i, 1);
             SaveTasksData();
-            return
+            return;
         }
     }
+}
+
+// Проверка инпута на соответствие диапазону значений
+function LengthValidate() {
+    if (!this.value || this.value.slice(-1) != '.' && this.value > 0 && this.value < 11) {
+        if (!this.value) {
+            prevInputValue = '';
+            return;
+        }
+        prevInputValue = this.value;
+        return;
+    }
+    else this.value = prevInputValue;
 }
