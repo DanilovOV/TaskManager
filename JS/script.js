@@ -26,19 +26,18 @@ class Task {
     difficult = ''; // Сложность задания
     deadline = ''; // Время, к которому нужно выполнить задание
     section = ''; // Раздел, в котором находится задание
-    active = false; // Выполняется ли это задание сейчас?
-    complete = false; // Выполнено ли это задание?
-    startTime = new Date().toLocaleString(); // Время создания задания
+    active = false; // Выполняется ли это задание сейчас
+    complete = false; // Выполнено ли это задание
+    startTime = Date.now(); // Время создания задания
     finishTime = ''; // Время завершения задания
 
-    constructor (sectionID, text, difficult, deadline, active, complete, startTime, finishTime, id) {
+    constructor (sectionID, text, difficult, deadline, active, startTime, finishTime, id) {
         this.setID(id);
         this.sectionID = sectionID;
         this.text = text;
         this.difficult = difficult;
         this.deadline = deadline;
         this.setActive(active);
-        this.setComplete(complete);
         this.setStartTime(startTime);
         this.setFinishTime(finishTime);
     }
@@ -52,9 +51,6 @@ class Task {
     setActive (param) {
         if (param) this.active = param;
     }
-    setComplete (param) {
-        if (param) this.complete = param;
-    }
     setStartTime (param) {
         if (param) this.startTime = param;
     }
@@ -62,7 +58,7 @@ class Task {
         if (param) this.finishTime = param;
     }
     getData () {
-        let taskData = `${this.sectionID}|${this.text}|${this.difficult}|${this.deadline}|${this.active}|${this.complete}|${this.startTime}|${this.finishTime}|${this.#id}&`
+        let taskData = `${this.sectionID}|${this.text}|${this.difficult}|${this.deadline}|${this.active}|${this.startTime}|${this.finishTime}|${this.#id}&`
         return taskData
     }
 }
@@ -96,6 +92,7 @@ let newSectionName; // Заголовок с названием изменяем
 let prevInputValue = ''; // Переменная для валидации инпутов сложности задания
 let sectionArr = new Array();
 let taskArr = new Array();
+let currentDateTime = Date.now(); // Текущие дата и время. Используется для удаления заданий, помеченных как выполненные
 
 let forms = document.querySelectorAll('.form'); // Все формы заметок
 forms.forEach(element => element.addEventListener('click', CloseForm));
@@ -121,14 +118,14 @@ completeTaskButton.addEventListener('click', CompleteTask);
 let cancelCompleteTaskButton = document.querySelector('#cancelCompleteTaskButton'); // Кнопка, изменяющая статус задания на невыполненное
 cancelCompleteTaskButton.addEventListener('click', CancelCompleteTask);
 
-let editTaskButton = document.querySelector('#editTaskButton'); // Кнопка редактирования задания
+let editTaskButton = document.querySelector('#editTaskButton'); // Кнопка открывающая окно редактирования задания
 editTaskButton.addEventListener('click', OpenEditTaskWindow);
 
 let deleteTaskButton = document.querySelector('#deleteTaskButton'); // Кнопка удаления задания
 deleteTaskButton.addEventListener('click', DeleteTask);
 
-let formChangeTaskButton = document.querySelector('#formChangeTaskButton');
-formChangeTaskButton.addEventListener('click', EditTask);
+let confirmEditTaskButton = document.querySelector('#confirmEditTaskButton'); // Кнопка подтверждения изменения задания
+confirmEditTaskButton.addEventListener('click', EditTask);
 
 if (localStorage.getItem('sectionsData')) InitTasks();
 
@@ -169,22 +166,30 @@ function BuildSection (sectionData) {
 // Генерация задания по указанным параметрам
 function BuildTask (taskData) {
     let taskParams = taskData.split('|');
+    
+    // Если задание было помечено как выполненное больше 18 часов назад, не создаем его
+    if (taskParams[6] != '') {
+        if (currentDateTime - parseInt(taskParams[6]) > 3600000 * 18) {
+            return;
+        }
+    }
+
     let difficult = '';
     let deadline = '';
     let thisTasksList = document.getElementById(taskParams[0]).querySelector('.tasks__list');
-    taskArr.push(new Task(taskParams[0], taskParams[1], taskParams[2], taskParams[3], taskParams[4], taskParams[5], taskParams[6], taskParams[7], taskParams[8]));
+    taskArr.push(new Task(taskParams[0], taskParams[1], taskParams[2], taskParams[3], taskParams[4], taskParams[5], taskParams[6], taskParams[7]));
 
-    // Если у задания есть доп параметры, оборачиваем их в скобки (просто оформление)
+    // Если у задания есть доп параметры, оборачиваем их в скобки для красивого визуального отображения
     if (taskParams[2]) difficult = `(${taskParams[2]})`;
     if (taskParams[3]) deadline = `(${taskParams[3]})`;
 
     thisTasksList.insertAdjacentHTML('beforeend', ` \
-    <li class="tasks__object" id="${taskParams[8]}">${taskParams[1]} <span>${difficult}</span> <span>${deadline}</span></li>`);
+    <li class="tasks__object" id="${taskParams[7]}">${taskParams[1]} <span>${difficult}</span> <span>${deadline}</span></li>`);
     let thisTask = thisTasksList.lastElementChild;
 
     if (taskParams[2] > 6) thisTask.classList.add('hardTask');
     if (taskParams[4] == 'true') thisTask.classList.add('activeTask');
-    if (taskParams[5] == 'true') thisTask.classList.add('completedTask');
+    if (taskParams[6] != '') thisTask.classList.add('completedTask');
     thisTask.addEventListener('click', ActiveHandler);
     thisTask.addEventListener('contextmenu', OpenTaskMenu);
 }
@@ -315,7 +320,7 @@ function OpenTaskMenu (e) {
 function CompleteTask () {
     let chosenTask = document.querySelector('.chosenTask');
 
-    ChangeTaskElem('complete', chosenTask.id, 'true');
+    ChangeTaskElem('complete', chosenTask.id, Date.now());
     chosenTask.classList.add('completedTask');
 
     ActiveHandler('false', chosenTask.id);
@@ -327,7 +332,7 @@ function CompleteTask () {
 function CancelCompleteTask () {
     let chosenTask = document.querySelector('.chosenTask');
 
-    ChangeTaskElem('complete', chosenTask.id, 'false');
+    ChangeTaskElem('complete', chosenTask.id, '');
     chosenTask.classList.remove('completedTask');
 
     formTaskMenu.classList.remove('activeForm');
@@ -471,7 +476,7 @@ function ChangeTaskElem (mode, id, param1, param2, param3) {
                 task.deadline = param3;
             }
             if (mode == 'active') task.active = param1;
-            if (mode == 'complete') task.complete = param1;
+            if (mode == 'complete') task.finishTime = param1;
 
             SaveTasksData();
             return
