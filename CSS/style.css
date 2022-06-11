@@ -41,18 +41,6 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
-body.lock {
-  overflow: hidden;
-}
-
-@media (max-width: 767.98px) {
-  body.lock {
-    width: 100%;
-    position: fixed;
-    overflow: hidden;
-  }
-}
-
 input, button, textarea {
   font-family: "Arial";
 }
@@ -153,8 +141,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .taskMenu button {
   background: inherit;
+  padding: 1px 4px;
   color: #61892F;
-  margin-right: 5px;
 }
 
 .taskMenu button:last-child {
