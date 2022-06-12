@@ -141,12 +141,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .taskMenu button {
   background: inherit;
-  padding: 1px 4px;
   color: #61892F;
 }
 
-.taskMenu button:last-child {
-  margin-right: 0;
+.taskMenu :nth-child(3) {
+  padding: 0 6px;
 }
 
 .tasks {
