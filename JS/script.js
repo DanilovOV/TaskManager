@@ -93,9 +93,10 @@ let prevInputValue = ''; // Переменная для валидации ин�
 let sectionArr = new Array();
 let taskArr = new Array();
 let currentDateTime = Date.now(); // Текущие дата и время. Используется для удаления заданий, помеченных как выполненные
+let mouseDownOnForm = false;
 
 let forms = document.querySelectorAll('.form'); // Все формы заметок
-forms.forEach(element => element.addEventListener('click', CloseForm));
+forms.forEach(element => element.addEventListener('mouseup', CloseForm));
 
 let createSectionButton = document.querySelector('.tasks__createSectionButton'); // Кнопка создания раздела
 createSectionButton.addEventListener('click', OpenCreateSectionWindow);
@@ -198,6 +199,7 @@ function BuildTask (taskData) {
 
 // Открывает форму создания раздела
 function OpenCreateSectionWindow (e) {
+    ClickHandler(true);
     formCreateSection.classList.toggle('activeForm');
 
     let formContent = formCreateSection.querySelector('.form__content');
@@ -221,6 +223,7 @@ function CreateSection (e) {
 }
 // Открывает форму изменения названия раздела
 function OpenEditSectionWindow (e) {
+    ClickHandler(true);
     formEditSection.classList.toggle('activeForm');
     newSectionName = this.parentNode.parentNode.querySelector('.tasks__sectionHeader');
 
@@ -236,6 +239,7 @@ function OpenEditSectionWindow (e) {
 }
 // Редактирует выбранный раздел заданий
 function EditSection (e) {
+    ClickHandler(true);
     let sectionName = document.getElementById('newSectionName');
     newSectionName.innerText = sectionName.value;
     ChangeSectionElem(newSectionName.parentNode.id, sectionName.value);
@@ -253,6 +257,7 @@ function DeleteSection () {
 
 // Открывает форму создания задания
 function OpenCreateTaskWindow (e) {
+    ClickHandler(true);
     formCreateTask.classList.toggle('activeForm');
     thisTasksList = this.parentNode.nextElementSibling;
 
@@ -298,6 +303,7 @@ function ActiveHandler (mode, id) {
 }
 // Открывает меню действий над заданием
 function OpenTaskMenu (e) {
+    ClickHandler(true);
     this.classList.add('chosenTask');
     e.preventDefault();
     formTaskMenu.classList.toggle('activeForm');
@@ -340,6 +346,7 @@ function CancelCompleteTask () {
 }
 // Открывает окно редактирования задания
 function OpenEditTaskWindow (e) {
+    ClickHandler(true);
     // Заполняем инпуты окна редактирования данными об изменяемом задании
     let thisTask = document.querySelector('.chosenTask');
     taskArr.forEach(task => {
@@ -421,11 +428,12 @@ function SaveTasksData () {
 
 // Закрывает форму если кликнуть мимо ее контента
 function CloseForm (e) {
-    if (e.target.tagName == 'FORM') {
+    if (e.target.tagName == 'FORM' && mouseDownOnForm == false) {
         if (document.querySelector('.chosenTask')) {
             document.querySelector('.chosenTask').classList.remove('chosenTask');
         }
         this.classList.toggle('activeForm');
+        ClickHandler(false);
     }
 }
 
@@ -525,4 +533,23 @@ function LengthValidate() {
         return;
     }
     else this.value = prevInputValue;
+}
+
+function ClickHandler(mode) {
+    if (mode) {
+        document.addEventListener('mousedown', MouseDownHandler);
+        document.addEventListener('mouseup', MouseUpHandler);
+    } else {
+        document.removeEventListener('mousedown', MouseDownHandler);
+        document.removeEventListener('mouseup', MouseUpHandler);
+    }
+}
+
+function MouseUpHandler() {
+    mouseDownOnForm = false;
+}
+function MouseDownHandler(e) {
+    if (e.target.closest('.form__content')) {
+        mouseDownOnForm = true;
+    }
 }
